@@ -14,7 +14,7 @@ builder.Services.AddDbContext<AppDbContext>(
         (
             builder
             .Configuration
-            .GetConnectionString("SqlServerConnection")
+            .GetConnectionString("AzureConnection")
         );
     }
 
