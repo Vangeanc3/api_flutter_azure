@@ -17,6 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(
             .GetConnectionString("SqlServerConnection")
         );
     }
+
 );
 
 var app = builder.Build();

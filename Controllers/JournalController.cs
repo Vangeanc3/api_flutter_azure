@@ -85,5 +85,12 @@ namespace api_flutter.Controllers
             await context.SaveChangesAsync();
             return Ok();
         }
+
+        [HttpGet]
+        [Route("teste")]
+        public async Task<IActionResult> Teste()
+        {
+            return Ok("funcionou");
+        }
     }
 }
