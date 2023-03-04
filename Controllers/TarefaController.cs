@@ -10,10 +10,17 @@ namespace api_flutter.Controllers;
 [Route("tarefa")]
 public class TarefaController : ControllerBase
 {
+
+    private readonly AppDbContext _context;
+
+    public TarefaController(AppDbContext context)
+    {
+        _context = context;
+    }
+
     [HttpPost]
     [Route("criar")]
     public async Task<IActionResult> CriarTarefa(
-        [FromServices] AppDbContext context,
         [FromBody] Tarefa tarefa)
     {
         if (tarefa == null)
@@ -21,19 +28,17 @@ public class TarefaController : ControllerBase
             return BadRequest();
         }
 
-        await context.Tarefas.AddAsync(tarefa);
-        await context.SaveChangesAsync();
+        await _context.Tarefas.AddAsync(tarefa);
+        await _context.SaveChangesAsync();
 
         return Ok();
     }
 
     [HttpGet]
     [Route("buscar")]
-    public async Task<IActionResult> RetornaTarefas(
-        [FromServices] AppDbContext context
-    )
+    public async Task<IActionResult> RetornaTarefas()
     {
-        List<Tarefa> tarefas = await context.Tarefas.ToListAsync();
+        List<Tarefa> tarefas = await _context.Tarefas.ToListAsync();
 
         if (tarefas is null)
             return NotFound("Não achamos nenhuma Tarefa");
@@ -45,11 +50,10 @@ public class TarefaController : ControllerBase
     [Route("atualizar")]
     public async Task<IActionResult> AtualizarTarefa
     (
-        [FromBody][Required] Tarefa tarefaRequest,
-        [FromServices] AppDbContext context
+        [FromBody][Required] Tarefa tarefaRequest
     )
     {
-        var tarefaGet = await context.Tarefas.FirstOrDefaultAsync(tarefa => tarefa.Titulo == tarefaRequest.Titulo);
+        var tarefaGet = await _context.Tarefas.FirstOrDefaultAsync(tarefa => tarefa.Titulo == tarefaRequest.Titulo);
 
         if (tarefaGet == null)
             return NotFound("Tarefa não existe ou não foi encontrada!!!");
@@ -58,8 +62,8 @@ public class TarefaController : ControllerBase
         tarefaGet.Dificuldade = tarefaRequest.Dificuldade != null ? tarefaRequest.Dificuldade : tarefaGet.Dificuldade;
         tarefaGet.UrlFoto = tarefaRequest.UrlFoto != null ? tarefaRequest.UrlFoto : tarefaGet.UrlFoto;
 
-        context.Tarefas.Update(tarefaGet);
-        await context.SaveChangesAsync();
+        _context.Tarefas.Update(tarefaGet);
+        await _context.SaveChangesAsync();
         return Ok("Sucesso em atualizar");
     }
 
@@ -67,16 +71,15 @@ public class TarefaController : ControllerBase
     [Route("deletar")]
     public async Task<IActionResult> DeletarTarefa
     (
-        [FromBody][Required] string titulo,
-        [FromServices] AppDbContext context
+        [FromBody][Required] string titulo    
     )
     {
-        var tarefa = await context.Tarefas.FindAsync(titulo);
+        var tarefa = await _context.Tarefas.FindAsync(titulo);
         if (tarefa is null)
             return NotFound();
 
-        context.Tarefas.Remove(tarefa);
-        await context.SaveChangesAsync();
+        _context.Tarefas.Remove(tarefa);
+        await _context.SaveChangesAsync();
         return Ok();
     }
 }

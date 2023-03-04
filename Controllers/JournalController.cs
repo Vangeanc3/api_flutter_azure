@@ -10,10 +10,17 @@ namespace api_flutter.Controllers
     [Route("journal")]
     public class JournalController : ControllerBase
     {
+
+        private readonly AppDbContext _context;
+
+        public JournalController(AppDbContext context)
+        {
+            _context = context;
+        }
+
         [HttpPost]
         [Route("criar")]
         public async Task<IActionResult> CriarJournal(
-       [FromServices] AppDbContext context,
        [FromBody] Journal journalRequest)
         {
             if (journalRequest is null)
@@ -28,19 +35,17 @@ namespace api_flutter.Controllers
                 UpdateAt = DateTime.Now
             };
 
-            await context.Journals.AddAsync(journal);
-            await context.SaveChangesAsync();
+            await _context.Journals.AddAsync(journal);
+            await _context.SaveChangesAsync();
 
             return Ok();
         }
 
         [HttpGet]
         [Route("buscar")]
-        public async Task<IActionResult> RetornaJournals(
-            [FromServices] AppDbContext context
-        )
+        public async Task<IActionResult> RetornaJournals()
         {
-            List<Journal> journals = await context.Journals.ToListAsync();
+            List<Journal> journals = await _context.Journals.ToListAsync();
 
             if (journals is null)
                 return NotFound("Não achamos nenhum Journal");
@@ -52,11 +57,10 @@ namespace api_flutter.Controllers
         [Route("atualizar")]
         public async Task<IActionResult> AtualizarJournal
         (
-            [FromBody][Required] Journal journalRequest,
-            [FromServices] AppDbContext context
+            [FromBody][Required] Journal journalRequest
         )
         {
-            var journalGet = await context.Journals.FirstOrDefaultAsync(j => j.Id == journalRequest.Id);
+            var journalGet = await _context.Journals.FirstOrDefaultAsync(j => j.Id == journalRequest.Id);
 
             if (journalGet is null)
                 return NotFound();
@@ -64,8 +68,8 @@ namespace api_flutter.Controllers
             journalGet.Content = journalRequest.Content != null ? journalRequest.Content : journalGet.Content;
             journalGet.UpdateAt = DateTime.Now;
 
-            context.Journals.Update(journalGet);
-            await context.SaveChangesAsync();
+            _context.Journals.Update(journalGet);
+            await _context.SaveChangesAsync();
             return Ok("Sucesso em atualizar");
         }
 
@@ -73,22 +77,22 @@ namespace api_flutter.Controllers
         [Route("deletar")]
         public async Task<IActionResult> DeletarJournal
         (
-            [FromBody][Required] Guid Id,
-            [FromServices] AppDbContext context
+            [FromBody][Required] Guid Id
         )
         {
-            var journal = await context.Journals.FindAsync(Id);
+            var journal = await _context.Journals.FindAsync(Id);
             if (journal is null)
                 return NotFound();
 
-            context.Journals.Remove(journal);
-            await context.SaveChangesAsync();
+            _context.Journals.Remove(journal);
+            await _context.SaveChangesAsync();
             return Ok();
         }
 
         [HttpGet]
         [Route("teste")]
-        public async Task<IActionResult> Teste()
+        public async Task<IActionResult> Teste(
+        )
         {
             return Ok("funcionou");
         }

@@ -7,25 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<AppDbContext>(
-    opts =>
-    {
-        opts.UseSqlServer
-        (
-            builder
-            .Configuration
-            .GetConnectionString("AzureConnection")
-        );
-    }
-
-);
+builder.Services.AddDbContext<AppDbContext>();
 
 var app = builder.Build();
 
 
 // Configure the HTTP request pipeline.
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
